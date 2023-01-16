@@ -32,11 +32,14 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include <data/locations.h>
 #include <data/objects.h>
 #include <data/messages.h>
 #include <data/sysmessages.h>
+#include <data/rules.h>
+#include <data/words.h>
 
 #include <game/functions.h>
 #include <game/engine.h>
@@ -44,7 +47,7 @@
 #include <platform/platform.h>
 
 void dflag(uint8_t flag,int8_t delta) {
-    if ( (engine()->flags[flag] + delta) > 0)
+    if ( (engine()->flags[flag] + delta) >= 0)
         engine()->flags[flag] = engine()->flags[flag] + delta;
 }
 
@@ -59,11 +62,20 @@ static bool _yesno() {
     int ch=0;
     while (ch==0) ch=platform_kbhit();
     
+    /* newline */
+    platform_write(AREA_MESSAGES,"",true);
+
     /* is it yes? */
-    return (ch==(sys_messages[SM_YES])[0]);
+    ch=toupper(ch);
+    return (ch==((sys_messages[SM_YES])[0]));
 }
 
 static char *_itoa(int val, char *result) {
+    /* zero is special case... */
+    if (!val) {
+        result[0]='0'; result[1]=0; return result;
+    }
+    /* convert! */
     bool first=true;
     uint8_t pos=0;
     int div=10000;
@@ -126,8 +138,10 @@ int not_worn(uint8_t object) {
 
 /* is object present? */
 int present(uint8_t object) {
-    return (engine()->location == 
-        (engine()->objects)[object].slocid) ? 
+    return (
+        engine()->location == engine()->objects[object].slocid /* present?*/
+        || engine()->objects[object].slocid == O_WORN
+        || engine()->objects[object].slocid == O_CARRIED) ? 
         R_SUCCESS : R_FAIL;
 }
 
@@ -164,7 +178,7 @@ int not_zero(uint8_t flag) {
 
 /* random */
 int chance(uint8_t percent) {
-    return platform_rndgen() < percent ? R_SUCCESS : R_FAIL;
+    return platform_rndgen() <= (int)percent ? R_SUCCESS : R_FAIL;
 }
 
 
@@ -180,8 +194,10 @@ int go(uint8_t location) {
 /* (current) location description */
 int desc() {
 
+    /* autodecrease flag */
     dflag(FLG_DSC,-1);
-    
+    int i,j;
+
     /* its dark */
     if (engine()->flags[FLG_DARK]) {
         dflag(FLG_DSCD,-1);
@@ -197,10 +213,40 @@ int desc() {
     if (!(engine()->flags[FLG_DARK]) 
         || engine()->location==engine()->objects[LIGHTOBJ].slocid
     ) {
+        /* First the location. */
         platform_write(AREA_LOCATION,locations[engine()->location],true);
         
+        /* Now the directions. */
+        char separator='\0';
+        for(i=0;i<NUM_RULES;i++) {
+            /* it's a connection from current location! */
+            if (rules[i].fcode==CMD_CONN && 
+                func[rules[i].codeloc + 1] == engine()->location
+            ) {
+                /* now find the word with index rules[i].wpair */
+                for(j=0;j<NWORDS;j++)
+                    if (words[j].id==rules[i].wpair) {
+                        /* if it is the first word then separator will be \0 */
+                        if (separator=='\0') {
+                            platform_write(AREA_LOCATION,sys_messages[SM_DIRECTIONS],false);
+                            platform_write(AREA_LOCATION,words[j].word,false);
+                            separator=',';
+                        } else {
+                            platform_write(AREA_LOCATION,", ",false);
+                            platform_write(AREA_LOCATION,words[j].word,false);
+                        }
+                        break;
+                    }
+            }
+        }
+        if (separator=='\0')
+            platform_write(AREA_LOCATION,sys_messages[SM_NO_WAY_OUT],true);
+        else 
+            platform_write(AREA_LOCATION,sys_messages[SM_DOT],true);
+
+        /* Now the inventory. */
         bool foundany=false;
-        for(uint8_t i=0; i<NUMOBJECTS; i++) {
+        for(i=0; i<NUMOBJECTS; i++) {
             if (engine()->location==engine()->objects[i].slocid) {
                 if (!foundany) {
                     platform_write(AREA_INVENTORY,sys_messages[SM_I_ALSO_SEE],true);
@@ -213,6 +259,7 @@ int desc() {
 
     /* don't exec. next action. */
     engine()->done=true;
+
     return R_SUCCESS;
 }
 
@@ -244,15 +291,16 @@ int inven() {
 int quit() {
     /* ask the user if he wants to quit? */
     platform_write(AREA_MESSAGES,sys_messages[SM_WANNA_QUIT],true);
-    engine()->done=engine()->quit=_yesno();
-
+    if (_yesno()) {
+        platform_write(AREA_MESSAGES,sys_messages[SM_THEEND],true);
+        engine()->quit=true;
+    }
+        engine()->done=true;
     return R_SUCCESS;
 }
 
 int end() {
-    /* ask the user if he wants to quit? */
-    platform_write(AREA_MESSAGES,sys_messages[SM_THEEND],true);
-    /* TODO: restart or finish the game */
+    engine()->quit=true;
     return R_SUCCESS;
 }
 
@@ -361,7 +409,8 @@ int create(uint8_t object) {
 }
 
 int destroy(uint8_t object) {
-    if (engine()->objects[object].slocid==O_WORN) 
+    if (engine()->objects[object].slocid==O_WORN
+        || engine()->objects[object].slocid==O_CARRIED) 
         dflag(FLG_COUNT_CARR,-1);
     engine()->objects[object].slocid=O_NOTCRE;
     return R_SUCCESS;
@@ -402,14 +451,14 @@ int done() {
 
 /* not implementd! */
 int save() {
-    /* TODO: implement */
+    platform_write(AREA_MESSAGES,sys_messages[SM_DONT_UNDERSTAND],true);
     engine()->done=true;
     return R_FAIL;
 }
 
 /* not implemented! */
 int load() {
-    /* TODO: implement */
+    platform_write(AREA_MESSAGES,sys_messages[SM_DONT_UNDERSTAND],true);
     engine()->done=true;
     return R_FAIL;
 }
@@ -428,9 +477,9 @@ int turns() {
         ((engine()->flags[FLG_TURNS_HI])<<8);
     _itoa(turns,sturns);
     /* display number of turns */
-    platform_write(AREA_MESSAGES, sys_messages[SM_TURN], false);
-    platform_write(AREA_MESSAGES, " ", false);
+    platform_write(AREA_MESSAGES, sys_messages[SM_YOU_HAVE_TAKEN], false);
     platform_write(AREA_MESSAGES, sturns, false);
+    platform_write(AREA_MESSAGES, sys_messages[SM_TURN],false);
     if (turns>1) 
         platform_write(AREA_MESSAGES, sys_messages[SM_TURNS_PLURAL], false);
     platform_write(AREA_MESSAGES, sys_messages[SM_DOT], true);
@@ -444,9 +493,7 @@ int score() {
     _itoa(engine()->flags[FLG_SCORE],sscore);
     /* display percent complete */
     platform_write(AREA_MESSAGES, sys_messages[SM_YOU_HAVE_SCORED], false);
-    platform_write(AREA_MESSAGES, " ", false);
     platform_write(AREA_MESSAGES, sscore, false);
-    platform_write(AREA_MESSAGES, " ", false);
     platform_write(AREA_MESSAGES, sys_messages[SM_PERCENT], false);
     platform_write(AREA_MESSAGES, sys_messages[SM_DOT], true);
     return R_SUCCESS;

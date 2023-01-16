@@ -44,6 +44,8 @@
 #define SM_ALREADY_WEARING  29
 #define SM_YES              30
 #define SM_NO               31
+#define SM_DIRECTIONS       32
+#define SM_NO_WAY_OUT       33
 
 extern const char *sys_messages[];
 

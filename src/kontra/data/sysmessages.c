@@ -27,12 +27,12 @@ const char *sys_messages[] = {
     ,"Hvala za dru`bo !"
     ,"OK."
     ,"Po`ge~kaj za nadaljevanje"
-    ,"Ukazov dal si"
-    ,"zares"
+    ,"Ukazov dal si "
+    ," zares"
     ,"" /* plural */
     ,"."
-    ,"Nabral si"
-    ,"to~k."
+    ,"Nabral si "
+    ," to~k."
     ,"Tega sploh ne nosim."
     ,"Ne morem, polne roke imam."
     ,"To `e imam."
@@ -42,4 +42,6 @@ const char *sys_messages[] = {
     ,"To `e nosim na sebi."
     ,"D"
     ,"N"
+    ,"Poti vodijo na: "
+    ,"Ne vidim nobene poti."
 };

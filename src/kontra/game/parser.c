@@ -17,20 +17,21 @@
 #include <data/words.h>
 #include <game/parser.h>
 
-static int _strncmp( const char * s1, const char * s2, uint8_t n )
+static int _compare(char * s1, char * s2, uint8_t n)
 {
-    while ( n && *s1 && ( *s1 == *s2 ) )
-    { ++s1; ++s2; --n; }
-    if ( n == 0 )
+    while ( n && *s1 && ( *s1 == *s2 )) { ++s1; ++s2; --n; }
+    if ( n == 0 
+        || (*s1==0 && *s2==' ') 
+        || (*s2==0 && *s1==' '))
         return 0;
     else
-        return ( *(unsigned char *)s1 - *(unsigned char *)s2 );
+        return (*s1-*s2);
 }
 
 static uint8_t find_word(char *start) {
     uint8_t i=0;
     while (i<NWORDS) 
-        if (_strncmp(start,words[i].word,4)==0)
+        if (_compare(start,words[i].word,4)==0)
             return words[i].id;
         else 
             i++;
@@ -44,7 +45,7 @@ uint16_t parse(char *s) {
     char *wstart;
     uint8_t count=0;
     uint8_t windex;
-    
+
     while(*s && count < 2) {
         /* skip any whitespace */
         while (*s==' ') s++;

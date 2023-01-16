@@ -13,6 +13,7 @@
  */
 #include <stdbool.h>
 #include <stdio.h>
+#include <string.h>
 
 #include <data/rules.h>
 #include <data/sysmessages.h>
@@ -61,13 +62,22 @@ void engine_init() {
         if (engine()->objects[i].slocid==O_CARRIED)
             carried++;
     engine()->flags[FLG_COUNT_CARR]=carried;
+
+    /* kontrabant 2 only, easy vicory! */
+    engine()->flags[FLG_MINUTE]=40;
+    engine()->flags[FLG_SECOND]=59;
+
+    /* clear screen */
+    platform_clear(AREA_SCREEN);
+
 }
 
+#pragma disable_warning 244
 static bool _engine_exec(uint16_t codeloc) {
 
     /* as long as there are program bytes */
     while(
-        func[codeloc]!=FN_EOF           /* exec all commands in chain unless ... */
+        (func[codeloc]!=FN_EOF)         /* exec all commands in chain unless ... */
         && !(engine()->done)            /* ...done or...*/
         && !(engine()->quit)            /* ...quit! */
     ) {
@@ -82,15 +92,15 @@ static bool _engine_exec(uint16_t codeloc) {
         /* call the function */
         int result=R_SUCCESS;
         if ((func[codeloc] & CMD_PARBIT) == CMD_NOPARS) {
-            cfp0 = (tfp0)(fntable[fnid]);
+            cfp0 = (tfp0)fntable[fnid];
             result=cfp0();
             codeloc++;
         } else if ((func[codeloc] & CMD_PARBIT) == CMD_1PAR) {
-            cfp1 = (tfp1)(fntable[fnid]);
+            cfp1 = (tfp1)fntable[fnid];
             result=cfp1(func[codeloc+1]);
             codeloc+=2;
         } else if ((func[codeloc] & CMD_PARBIT) == CMD_2PARS) {
-            cfp2 = (tfp2)(fntable[fnid]);
+            cfp2 = (tfp2)fntable[fnid];
             result=cfp2(func[codeloc+1], func[codeloc+2]);
             codeloc+=3;
         }
@@ -133,9 +143,11 @@ void engine_loop() {
 
         /* processes... */
         int rule=0; engine()->done=false;
-        while(rule++<NUM_RULES && !(engine()->done)) {
-            if (rules[rule].fcode==CMD_PROC) /* process always executes */
+        while( (rule < NUM_RULES) && !(engine()->done)) {
+            if (rules[rule].fcode==CMD_PROC) /* process always executes */ 
                 _engine_exec(rules[rule].codeloc);
+            if (engine()->quit) goto the_end;
+            rule++;
         }
 
         /* random what to do? */
@@ -143,9 +155,9 @@ void engine_loop() {
         platform_write(AREA_INPUT, sys_messages[msg],true);
 
         /* get command form the user. */
+        platform_write(AREA_INPUT,"",true); 
         platform_write(AREA_INPUT,">",false); 
         platform_readline(engine()->input, MAX_INPUT_LEN);
-        platform_write(AREA_INPUT,"\n\n",false); 
 
         /* parse it! */
         uint16_t cmd=parse(engine()->input);
@@ -153,9 +165,11 @@ void engine_loop() {
         /* actions... */
         rule=0; engine()->done=false;
         bool processed=false; /* match made? */
-        while(rule++<NUM_RULES && !(engine()->done))
+        while(rule++<NUM_RULES && !(engine()->done)) {
             if (rules[rule].wpair==cmd) /* word matches */
                 processed |= _engine_exec(rules[rule].codeloc);
+            if (engine()->quit) goto the_end;
+        }
 
         if (!processed) {
             if ((cmd&0x00ff)<13)
@@ -168,4 +182,6 @@ void engine_loop() {
         _turn();
 
     } while (!(engine()->quit));
+
+the_end: {} /* prevent label without statement */
 }

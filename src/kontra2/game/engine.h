@@ -34,6 +34,9 @@
 #define FLG_CMD3        8
 #define FLG_CMDD        9   /* its dark */
 #define FLG_CMDDO0      10  /* its dark and obj 0 not present */
+/* kontrabant 2 special flag */
+#define FLG_MINUTE      28
+#define FLG_SECOND      29
 /* more special flags */
 #define FLG_SCORE       30
 #define FLG_TURNS_LO    31
