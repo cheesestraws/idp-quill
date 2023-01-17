@@ -70,12 +70,6 @@ int platform_rndgen() {
 /* we'll pretend its already pressed */
 int platform_kbhit() { return kbhit();} 
 
-
-/* mem top is c000 (start of shared memory for idp) */
-size_t _memtop() {
-    return (size_t )0xc000;
-}
-
 /* Non standard function to sleep (in milliseconds) */
 void _msleep(int millisec) {
     millisec;
