@@ -8,7 +8,7 @@ This repository contains the Quill adventures ports for the Iskra Delta Partner:
 
 *To compile, you will need a Linux machine with the latest version of the SDCC suite.*
 
-Fetch it with `git clone --recursive`. Don't forget the **--recursive**.
+This repository uses submodules. When you clone it, don't forget to add the `--recursive` switch.
 
 Use `make` to compile all games. 
 
