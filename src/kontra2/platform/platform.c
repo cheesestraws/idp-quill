@@ -14,12 +14,40 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <ugpx.h>
+
+#include <game/engine.h>
+
+#include <platform/platform.h>
+#include <platform/gex.h>
+#include <platform/gtty.h>
+
+static bool _initialized=false;
+
+static bool _has_image=false;
+
+#define FONT_NAME bc_font
+extern void *FONT_NAME;
+
+#define TTY_BUFF_LEN    0xff
+static tty_t *_ttyd;
+static uint8_t _ttyd_buffer[TTY_BUFF_LEN];
+void platform_init() {
+    ginit(RES_1024x256);
+    gcls();
+    rect_t ttyr={ 512, 128, 1023, 255 };
+    _ttyd=tty_create(&ttyr,_ttyd_buffer);
+}
+
+void platform_exit() {
+    tty_destroy(_ttyd, true);
+    gexit();
+}
 
 /* Call bdos function 10 C_READSTR! */
 extern unsigned char bdos(unsigned char fn, unsigned int param);
 #define C_READSTR   10
 #define C_WRITE     2
-
 void _printstring(const char *s) {
     /* first write string*/
     while(*s) { 
@@ -55,12 +83,51 @@ char* platform_readline(char *out, uint8_t maxchars) {
     return out;
 }
 
-void platform_clear(uint8_t area) { area; } /* no clear! */
+void platform_clear(uint8_t area) { 
+    area;
+    tty_cls(_ttyd);
+}
 
 void platform_write(uint8_t area, const char *s, bool newline) {
-    area;
-    _printstring(s);
-    if (newline) _printstring("\n");
+    if (area==AREA_LOCATION)            
+        tty_print(
+            _ttyd,
+            &FONT_NAME,
+            s);
+    else
+        _printstring(s);
+    
+    if (newline) {
+        if (area==AREA_LOCATION)
+            tty_print(
+                _ttyd,
+                &FONT_NAME,
+                "\n");
+        else
+            _printstring("\n");
+    }
+}
+
+void platform_image(uint8_t index) {
+    tty_cls(_ttyd);
+    void *image=gex_query_image(index);
+    rect_t imgr={512,0,1023,255};
+    if (image!=NULL) {
+        _has_image=true;
+        _ttyd->area.y0=128;
+        _ttyd->area.y1=255;
+        _ttyd->y=128;
+        gex_draw_image(image, 512, 0);
+        gex_release_image(image);
+    } else {
+        _has_image=false;
+        _ttyd->area.y0=0;
+        _ttyd->area.y1=127;
+        _ttyd->y=0;
+        gsetcolor(CO_BACK);
+        gfillrect(&imgr);
+        gsetcolor(CO_FORE);
+    }
 }
 
 int platform_rndgen() {

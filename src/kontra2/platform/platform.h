@@ -15,8 +15,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+/* initialize the platform */
+extern void platform_init();
+
+/* exit the platform */
+extern void platform_exit();
+
 /* platform read line, limit to max chars, return C string */
-extern uint8_t platform_readline(char *out, uint8_t maxchars);
+extern char* platform_readline(char *out, uint8_t maxchars);
 
 /* write to the area, for text only systems area is ignored */
 #define AREA_SCREEN     0   /* whole screen */
@@ -26,6 +32,9 @@ extern uint8_t platform_readline(char *out, uint8_t maxchars);
 #define AREA_SCORE      4
 #define AREA_INPUT      5
 extern void platform_write(uint8_t area, const char *s, bool newline);
+
+/* draw image (given location id) */
+extern void platform_image(uint8_t index);
 
 /* clear area */
 extern void platform_clear(uint8_t area);

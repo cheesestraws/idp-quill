@@ -198,6 +198,11 @@ int desc() {
     dflag(FLG_DSC,-1);
     int i,j;
 
+    /* clear platform area */
+    platform_clear(AREA_LOCATION);
+
+    platform_image(engine()->location);
+
     /* its dark */
     if (engine()->flags[FLG_DARK]) {
         dflag(FLG_DSCD,-1);
