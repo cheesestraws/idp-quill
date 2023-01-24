@@ -8,9 +8,11 @@ This repository contains the Quill adventures ports for the Iskra Delta Partner:
 
 *To compile, you will need a Linux machine with the latest version of the SDCC suite.*
 
+This repository uses submodules. When you clone it, don't forget to add the `--recursive` switch.
+
 Use `make` to compile all games. 
 
-Afterwards, you can find the disk image in the `bin/` directory and the `*.com` file in the `build/` directory.
+Afterwards, you can find the disk image in the `bin/` directory and the `*.com` files in the `build/` directory.
 
 [language.url]:   https://en.wikipedia.org/wiki/ANSI_C
 [language.badge]: https://img.shields.io/badge/language-C-blue.svg
