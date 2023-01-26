@@ -136,9 +136,6 @@ static void _turn() {
 extern int desc();
 void engine_loop() {   
 
-    /* initial desc ...*/
-    desc();
-
     do {
 
         /* processes... */
