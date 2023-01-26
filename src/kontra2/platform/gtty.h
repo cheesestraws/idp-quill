@@ -29,9 +29,8 @@ typedef struct tty_s {
 } tty_t;
 
 extern tty_t *tty_create(rect_t *r, char *chars);
-extern void tty_destroy(tty_t *tty, bool cls);
+extern void tty_destroy(tty_t *tty);
 extern void tty_cls(tty_t *tty);
 extern void tty_print(tty_t *tty, void *font, const char *text);
-extern void tty_scroll(tty_t *tty);
 
 #endif /* __GTTY_H__ */

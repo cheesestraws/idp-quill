@@ -22,29 +22,23 @@
 #include <platform/gex.h>
 #include <platform/gtty.h>
 
-static bool _initialized=false;
-
-static bool _has_image=false;
-
+/* current graphical font */
 #define FONT_NAME bc_font
 extern void *FONT_NAME;
 
+/* terminal (tty) settings */
 #define TTY_BUFF_LEN    0xff
 static tty_t *_ttyd;
 static uint8_t _ttyd_buffer[TTY_BUFF_LEN];
-void platform_init() {
-    ginit(RES_1024x256);
-    gcls();
-    rect_t ttyr={ 512, 128, 1023, 255 };
-    _ttyd=tty_create(&ttyr,_ttyd_buffer);
-}
 
-void platform_exit() {
-    tty_destroy(_ttyd, true);
-    gexit();
-}
+/* top and bottom rectangles*/
+#define TOP_RECT { 512, 0, 1023, 127 }
+#define BOT_RECT { 512, 132, 1023, 255 } 
+static rect_t 
+    _topr =  TOP_RECT, 
+    _botr = BOT_RECT;
 
-/* Call bdos function 10 C_READSTR! */
+/* CP/M text only print string */
 extern unsigned char bdos(unsigned char fn, unsigned int param);
 #define C_READSTR   10
 #define C_WRITE     2
@@ -56,6 +50,41 @@ void _printstring(const char *s) {
     }
 }
 
+void platform_init() {
+    ginit(RES_1024x256);
+    gcls();
+    _printstring("\n\n");
+    _ttyd=tty_create(&_topr,_ttyd_buffer);
+}
+
+void platform_exit() {
+    tty_destroy(_ttyd);
+    gcls();
+    gexit();
+}
+
+/* hybrid write: text and graphics */
+void platform_write(uint8_t area, const char *s, bool newline) {
+    if (area==AREA_LOCATION)            
+        tty_print(
+            _ttyd,
+            &FONT_NAME,
+            s);
+    else
+        _printstring(s);
+    
+    if (newline) {
+        if (area==AREA_LOCATION) 
+            tty_print(
+                _ttyd,
+                &FONT_NAME,
+                "\n");
+        else
+            _printstring("\n");
+    }
+}
+
+/* CP/M text only readline */
 char* platform_readline(char *out, uint8_t maxchars) {
     /* how many characters were read */
     uint8_t numchars;
@@ -83,59 +112,43 @@ char* platform_readline(char *out, uint8_t maxchars) {
     return out;
 }
 
+/* clear all graphics from the screen */
 void platform_clear(uint8_t area) { 
     area;
     tty_cls(_ttyd);
 }
 
-void platform_write(uint8_t area, const char *s, bool newline) {
-    if (area==AREA_LOCATION)            
-        tty_print(
-            _ttyd,
-            &FONT_NAME,
-            s);
-    else
-        _printstring(s);
-    
-    if (newline) {
-        if (area==AREA_LOCATION)
-            tty_print(
-                _ttyd,
-                &FONT_NAME,
-                "\n");
-        else
-            _printstring("\n");
-    }
-}
-
+/* draw image (if it exists), relayout
+   text and image rectangles... */
+static uint8_t _last_location=0;
 void platform_image(uint8_t index) {
+    /* don't redraw if already drawn...*/
+    if (index==_last_location) return; 
+    _last_location=index;
+    /* if first visit then clear */
     tty_cls(_ttyd);
     void *image=gex_query_image(index);
-    rect_t imgr={512,0,1023,255};
     if (image!=NULL) {
-        _has_image=true;
-        _ttyd->area.y0=128;
-        _ttyd->area.y1=255;
-        _ttyd->y=128;
+        memcpy(&(_ttyd->area),&_botr,sizeof(rect_t));
+        _ttyd->y=_ttyd->area.y0;
         gex_draw_image(image, 512, 0);
         gex_release_image(image);
     } else {
-        _has_image=false;
-        _ttyd->area.y0=0;
-        _ttyd->area.y1=127;
-        _ttyd->y=0;
+        memcpy(&(_ttyd->area),&_topr,sizeof(rect_t));
+        _ttyd->y=_ttyd->area.y0;
         gsetcolor(CO_BACK);
-        gfillrect(&imgr);
+        gfillrect(&_topr);
         gsetcolor(CO_FORE);
     }
 }
 
+/* we'll pretend its already pressed */
+int platform_kbhit() { return kbhit();} 
+
+/* generate random between 1 and 100 */
 int platform_rndgen() {
     return 1 + (rand() % 100);
 }
-
-/* we'll pretend its already pressed */
-int platform_kbhit() { return kbhit();} 
 
 /* Non standard function to sleep (in milliseconds) */
 void _msleep(int millisec) {

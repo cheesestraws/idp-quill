@@ -1,6 +1,9 @@
         ;; gex_draw_image.s
         ;; 
         ;; quickly draw raster image 256 x 128
+        ;; this function ignores current color and 
+        ;; leaves pen down and color set i.e. in an
+        ;; inconsistent state!
         ;;
         ;; MIT License (see: LICENSE)
         ;; copyright (c) 2023 tomaz stih
@@ -57,8 +60,8 @@ gdi_loop_col:
         pop     af                      ; get row counter
         dec     a                       ; minus 1
         jr      nz,gdi_loop_row         ; if not yer, repeat
-        ;; pen up
-        ld      a,#EF9367_CMD_PEN_UP    ; pen/eraser up
+        ;; pen set on exit
+        ld      a,#EF9367_CMD_DMOD_SET  ; pen set
         call    gdp_exec_cmd
         ;; clr stack
         ret

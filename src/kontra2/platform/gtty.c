@@ -25,8 +25,7 @@ tty_t *tty_create(rect_t *r, char *chars) {
     return result;
 }
 
-void tty_destroy(tty_t *tty, bool cls) {
-    if (cls) tty_cls(tty);
+void tty_destroy(tty_t *tty) {
     free(tty);
 }
 
@@ -88,11 +87,6 @@ void tty_print(tty_t *tty, void *font, const char *text) {
     }
     /* last part... */
     if (*text) _tty_wout(tty,font,text);
-}
-
-void tty_scroll(tty_t *tty) {
-    tty;
-    /* update buffer and redray */
 }
 
 void tty_cls(tty_t *tty) {

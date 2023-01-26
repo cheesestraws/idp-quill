@@ -18,7 +18,7 @@ const char *sys_messages[] = {
     ,"Kako naprej?"                       
     ,"Za to nisem programiran."
     ,"V to smer ne morem."
-    ,"Tega niti Iskra Delta Triglav ne bi zmogel."
+    ,"Tega niti Iskra Delta Triglav\nne bi zmogel."
     ,"Prenasam "
     ," (oblecen)"
     ,"ne nicesar." /* Prenesam + ne nicesar. */
@@ -26,7 +26,7 @@ const char *sys_messages[] = {
     ,"Bi morda ponovno poskusil sreco?"
     ,"Strahopetec!"
     ,"OK."
-    ,"Potlaci neko radirko, pa bova nadaljevala."
+    ,"Potlaci neko radirko,\npa bova nadaljevala."
     ,"Dal si "
     ," ukaz"
     ,"ov" /* plural */
