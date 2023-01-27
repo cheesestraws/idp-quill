@@ -12,14 +12,12 @@
 #include <platform/gex.h>
 #include <stdio.h>
 
-#define GEX_INDEX_LEN   128
-
 void * gex_query_image(uint8_t location) {
     for(uint8_t i=0;i<NUMIMAGES;i++) {
         if (images[i].location==location) {
             /* load image and return ptr to it */
             uint16_t len=IMG_SIZE-1;
-            return fload(images[i].name, NULL, images[i].offset + GEX_INDEX_LEN, &len);
+            return fload(images[i].name, NULL, images[i].offset, &len);
         }
     }
     return NULL; /* not found! */

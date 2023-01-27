@@ -4,6 +4,8 @@
 
 This repository contains the Quill adventures ports for the Iskra Delta Partner: Kontrabant, Kontrabant II., and Eurorun.
 
+![Kontrabant 2022](docs/img/kintro.png)
+
 ## Compiling
 
 *To compile, you will need a Linux machine with the latest version of the SDCC suite.*
@@ -13,6 +15,30 @@ This repository uses submodules. When you clone it, don't forget to add the `--r
 Use `make` to compile all games. 
 
 Afterwards, you can find the disk image in the `bin/` directory and the `*.com` files in the `build/` directory.
+
+# Screenshots & Solutions
+
+## Kontrabant II.
+
+Kontrabant II. - [the solution.](docs/kontrabant2-resitev.txt)
+
+![Kontrabant 2022](docs/img/kontra2-jugozaver.JPG)
+
+![Kontrabant 2022](docs/img/kontra2-stonehedge.JPG)
+
+![Kontrabant 2022](docs/img/kontra2-rim.JPG)
+
+![Kontrabant 2022](docs/img/kontra2-emona.JPG)
+
+![Kontrabant 2022](docs/img/kontra2-2000.JPG)
+
+## Kontrabant I.
+
+![Kontrabant 2022](docs/img/kontra1.JPG)
+
+## Eurorun
+
+![Kontrabant 2022](docs/img/eurorun.JPG)
 
 [language.url]:   https://en.wikipedia.org/wiki/ANSI_C
 [language.badge]: https://img.shields.io/badge/language-C-blue.svg
