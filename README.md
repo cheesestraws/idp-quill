@@ -40,6 +40,10 @@ Kontrabant II. - [the solution.](docs/kontrabant2-resitev.txt)
 
 ![Kontrabant 2022](docs/img/eurorun.JPG)
 
+# Credits
+
+Many thanks to the **The Part Time Nerds**, the **The Oddbit Labs**, [**Janez Demsar**](https://github.com/janezd) and **Ziga Turk** for their support.
+
 [language.url]:   https://en.wikipedia.org/wiki/ANSI_C
 [language.badge]: https://img.shields.io/badge/language-C-blue.svg
 
