@@ -42,7 +42,7 @@ Kontrabant II. - [the solution.](docs/kontrabant2-resitev.txt)
 
 # Credits
 
-Many thanks to the **The Part Time Nerds**, the **The Oddbit Labs**, [**Janez Demsar**](https://github.com/janezd) and **Ziga Turk** for their support.
+Many thanks to the **The Part Time Nerds**, the **The Oddbit Labs**, [**Miha Grcar**](https://github.com/mgrcar), [**Janez Demsar**](https://github.com/janezd) and **Ziga Turk** for their support.
 
 [language.url]:   https://en.wikipedia.org/wiki/ANSI_C
 [language.badge]: https://img.shields.io/badge/language-C-blue.svg
@@ -53,4 +53,4 @@ Many thanks to the **The Part Time Nerds**, the **The Oddbit Labs**, [**Janez De
 [license.url]:    https://github.com/tstih/idp-quill/blob/main/LICENSE
 [license.badge]:  https://img.shields.io/badge/license-MIT-blue.svg
 
-[status.badge]:  https://img.shields.io/badge/status-stable-darkgreen.svg
+[status.badge]:  https://img.shields.io/badge/status-stable-dkgreen.svg
