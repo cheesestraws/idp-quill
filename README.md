@@ -53,4 +53,4 @@ Many thanks to the **The Part Time Nerds**, the **The Oddbit Labs**, [**Miha Grc
 [license.url]:    https://github.com/tstih/idp-quill/blob/main/LICENSE
 [license.badge]:  https://img.shields.io/badge/license-MIT-blue.svg
 
-[status.badge]:  https://img.shields.io/badge/status-stable-darkgreen.svg
+[status.badge]:  https://img.shields.io/badge/status-stable-dkgreen.svg
