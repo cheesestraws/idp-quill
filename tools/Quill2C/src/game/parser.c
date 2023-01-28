@@ -48,7 +48,7 @@ uint16_t parse(char *s) {
 
     while(*s && count < 2) {
         /* skip any whitespace */
-        while (*s==' ') s++;
+        while (*s && !isalnum(*s)) s++;
         wstart=s;   /* start of word */
         /* skip alpha num. characters */
         while (isalnum(*s)) { *s=toupper(*s); s++; }
@@ -64,7 +64,6 @@ uint16_t parse(char *s) {
                 }
             }
         }
-        
     }
     return w;
 }

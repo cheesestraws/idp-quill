@@ -74,6 +74,10 @@ mkdisk:
 	cpmcp -f idpfdd $(FLOPPY) $(BUILD_DIR)/kontra2/kontra2.com 0:kontra2.com
 	cpmcp -f idpfdd $(FLOPPY) $(DISK_DIR)/extras/*.* 0:
 	rm ./diskdefs
+	cp $(BUILD_DIR)/kontra/kontra.com $(BIN_DIR)
+	cp $(BUILD_DIR)/kontra2/kontra2.com $(BIN_DIR)
+	cp $(DISK_DIR)/extras/* $(BIN_DIR)
+	cp $(BUILD_DIR)/eurorun/eurorun.com $(BIN_DIR)
 
 .PHONY: install
 install: all
